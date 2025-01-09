@@ -14,7 +14,21 @@ const getDebitsForToday = async (req, res) => {
       date: { $gte: startOfDay, $lte: endOfDay },
     }).populate('category paymentMethod');
 
-    res.status(200).json(debits);
+     // Calculate total sum
+     const totalDebit = await Transaction.aggregate([
+        {
+          $match: {
+            type: 'debit',
+            date: { $gte: startOfDay, $lte: endOfDay },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]);
+
+      res.status(200).json({
+        totalDebit: totalDebit[0]?.total || 0,
+        transactions: debits,
+      });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching debits for today', error });
   }
@@ -34,7 +48,21 @@ const getCreditsForToday = async (req, res) => {
       date: { $gte: startOfDay, $lte: endOfDay },
     }).populate('category paymentMethod');
 
-    res.status(200).json(credits);
+    // Calculate total sum
+    const totalCredit = await Transaction.aggregate([
+        {
+          $match: {
+            type: 'credit',
+            date: { $gte: startOfDay, $lte: endOfDay },
+          },
+        },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]);
+  
+      res.status(200).json({
+        totalCredit: totalCredit[0]?.total || 0,
+        transactions: credits,
+      });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching credits for today', error });
   }
