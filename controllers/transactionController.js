@@ -6,7 +6,7 @@ const { sanitizeInput } = require('../utils/sanitizeInput');
 // @route POST /api/transactions
 // @access Public
 const createTransaction = asyncHandler(async (req, res) => {
-  const { type, category, amount, paymentMethod, remarks } = sanitizeInput(req.body);
+  const { type, category, amount, paymentMethod, remarks, date } = sanitizeInput(req.body);
 
   if (!type || !category || !amount || !paymentMethod) {
     res.status(400);
@@ -19,6 +19,7 @@ const createTransaction = asyncHandler(async (req, res) => {
     amount,
     paymentMethod,
     remarks,
+    date,
   });
 
   res.status(201).json(transaction);

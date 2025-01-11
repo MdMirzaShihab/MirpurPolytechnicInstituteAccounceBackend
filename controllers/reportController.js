@@ -37,36 +37,36 @@ const getReport = asyncHandler(async (req, res) => {
     filter.remarks = { $regex: search, $options: "i" };
   }
 
-  // Fetch filtered transactions
-  const transactions = await Transaction.find(filter)
-    .populate("category")
-    .populate("paymentMethod");
+ // Fetch filtered transactions
+ const transactions = await Transaction.find(filter)
+ .populate("category")
+ .populate("paymentMethod");
 
-  // Calculate total debit and credit amounts
-  const totals = await Transaction.aggregate([
-    { $match: filter }, // Apply the same filters
-    {
-      $group: {
-        _id: "$type",
-        totalAmount: { $sum: "$amount" },
-      },
-    },
-  ]);
+// Calculate total debit and credit amounts based on filtered transactions
+const totalSummary = transactions.reduce(
+ (acc, transaction) => {
+   if (transaction.type === "debit") {
+     acc.debit += transaction.amount;
+   } else if (transaction.type === "credit") {
+     acc.credit += transaction.amount;
+   }
+   return acc;
+ },
+ { debit: 0, credit: 0 } // Initialize totals
+);
 
-  // Format totals as an object with debit and credit
-  const totalSummary = totals.reduce(
-    (acc, curr) => {
-      acc[curr._id] = curr.totalAmount;
-      return acc;
-    },
-    { debit: 0, credit: 0 } // Default to 0 if no transactions exist for a type
-  );
+// Calculate the total balance
+totalSummary.total = totalSummary.credit - totalSummary.debit;
 
+
+
+console.log(totalSummary.total, totalSummary.debit, totalSummary.credit);
   // Send the response
   res.json({
     transactions,
     totalDebit: totalSummary.debit,
     totalCredit: totalSummary.credit,
+    totalBalance: totalSummary.total,
   });
 });
 
