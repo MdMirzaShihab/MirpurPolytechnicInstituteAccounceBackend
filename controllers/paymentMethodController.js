@@ -1,5 +1,6 @@
 const PaymentMethod = require('../models/PaymentMethod');
 const asyncHandler = require('express-async-handler');
+const Transaction = require('../models/Transaction');
 
 // @desc Create a new payment method
 // @route POST /api/payment-methods
@@ -10,6 +11,16 @@ const createPaymentMethod = asyncHandler(async (req, res) => {
   if (!name) {
     res.status(400);
     throw new Error('Please provide a name.');
+  }
+
+  // Check if a payment method with the same name exists (case-insensitive)
+  const existingPaymentMethod = await PaymentMethod.findOne({
+    name: { $regex: new RegExp(`^${name}$`, 'i') }, // Case-insensitive check
+  });
+
+  if (existingPaymentMethod) {
+    res.status(400);
+    throw new Error(`Payment method with name "${name}" already exists.`);
   }
 
   const paymentMethod = await PaymentMethod.create({ name });
@@ -54,14 +65,25 @@ const updatePaymentMethod = asyncHandler(async (req, res) => {
 const deletePaymentMethod = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const paymentMethod = await PaymentMethod.findById(id);
+  //check if payment method is being used in a transaction
+  const linkedTransactions = await Transaction.findOne({ paymentMethod: id });
+
+  if (linkedTransactions) {
+    res.status(400);
+    throw new Error(
+      'This payment method is associated with existing transactions and cannot be deleted.'
+    );
+  }
+
+  const paymentMethod = await PaymentMethod.findByIdAndDelete(id);
+
 
   if (!paymentMethod) {
     res.status(404);
     throw new Error('Payment method not found');
   }
 
-  await paymentMethod.remove();
+
   res.json({ message: 'Payment method deleted successfully' });
 });
 
