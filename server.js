@@ -7,7 +7,7 @@ const {serverPort} = require('./secret');
 connectDB();
 
 // Start server
-app.listen(serverPort, () => {
+app.listen(serverPort, '0.0.0.0', () => {
   if (!process.env.PORT) {
     console.warn('Warning: PORT is not explicitly set in the environment. Using default port 5000.');
   }
