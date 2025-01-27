@@ -58,9 +58,6 @@ const totalSummary = transactions.reduce(
 // Calculate the total balance
 totalSummary.total = totalSummary.credit - totalSummary.debit;
 
-
-
-console.log(totalSummary.total, totalSummary.debit, totalSummary.credit);
   // Send the response
   res.json({
     transactions,
