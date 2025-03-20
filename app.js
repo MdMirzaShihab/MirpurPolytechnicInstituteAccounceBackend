@@ -13,6 +13,7 @@ const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const todayTransactionRoutes = require('./routes/todayTransactionRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const seedRoutes = require('./routes/seedRoutes');
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/today-reports', todayTransactionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Error handling middleware
 app.use(errorMiddleware);

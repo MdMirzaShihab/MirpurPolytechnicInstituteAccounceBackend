@@ -5,11 +5,6 @@ const openingBalanceSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  paymentMethod: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'PaymentMethod',
-    required: true,
-  },
   date: {
     type: Date,
     required: true,
